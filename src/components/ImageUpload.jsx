@@ -28,12 +28,10 @@ const ImageUpload = () => {
 						height = (height * MAX_DIMENSION) / width;
 						width = MAX_DIMENSION;
 					}
-				} else {
-					if (height > MAX_DIMENSION) {
+				} else if (height > MAX_DIMENSION) {
 						width = (width * MAX_DIMENSION) / height;
 						height = MAX_DIMENSION;
 					}
-				}
 
 				canvas.width = width;
 				canvas.height = height;
