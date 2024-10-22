@@ -5,7 +5,7 @@ const ImageUpload = () => {
 	const [error, setError] = useState(null);
 
 	const MAX_FILE_SIZE = 250 * 1024; // 250 KB
-	const MAX_DIMENSION = 242; // Maximum width or height
+	const FIXED_DIMENSION = 242; // Fixed dimension for both width and height
 
 	const handleImageResize = (file) => {
 		const reader = new FileReader();
@@ -18,26 +18,12 @@ const ImageUpload = () => {
 				const canvas = document.createElement('canvas');
 				const ctx = canvas.getContext('2d');
 
-				// Maintain aspect ratio
-				let width = img.width;
-				let height = img.height;
+				// Set canvas size to 242x242
+				canvas.width = FIXED_DIMENSION;
+				canvas.height = FIXED_DIMENSION;
 
-				// Resize only if one of the dimensions exceeds 242px
-				if (width > height) {
-					if (width > MAX_DIMENSION) {
-						height = (height * MAX_DIMENSION) / width;
-						width = MAX_DIMENSION;
-					}
-				} else if (height > MAX_DIMENSION) {
-						width = (width * MAX_DIMENSION) / height;
-						height = MAX_DIMENSION;
-					}
-
-				canvas.width = width;
-				canvas.height = height;
-
-				// Draw the resized image on the canvas
-				ctx.drawImage(img, 0, 0, width, height);
+				// Draw the image on the canvas with the exact dimensions
+				ctx.drawImage(img, 0, 0, FIXED_DIMENSION, FIXED_DIMENSION);
 
 				// Try resizing with quality to reduce the file size
 				const tryResizing = (quality) => {
@@ -47,14 +33,12 @@ const ImageUpload = () => {
 								if (blob.size <= MAX_FILE_SIZE) {
 									resolve(blob); // If file size is under the limit, resolve it
 								} else if (quality > 0.1) {
-										// If the file size is still too big, lower quality and try again
-										resolve(tryResizing(quality - 0.1));
-									} else {
-										setError(
-											'Unable to reduce file size under 250 KB.'
-										);
-										resolve(null);
-									}
+									// If the file size is still too big, lower quality and try again
+									resolve(tryResizing(quality - 0.1));
+								} else {
+									setError('Unable to reduce file size under 250 KB.');
+									resolve(null);
+								}
 							},
 							file.type === 'image/png' ? 'image/png' : 'image/jpeg', // Use the correct type
 							quality
